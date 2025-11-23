@@ -1,5 +1,6 @@
 import User from "../models/usermodal.js";
-
+import cloudinary from "../utils/cloudinary.js";
+import fs from "fs";
 export const getUserProfile = async (req, res) => {
     try{
         const userId=req.user.id;
@@ -18,35 +19,44 @@ export const getUserProfile = async (req, res) => {
 
 
 export const updateUserProfile = async (req, res) => {
-    try{
-        const UserId=req.user.id;
-        const {displayName,occupation,interests}=req.body;
-        const profileImageUrl=req.file?.path;
+  try {
+    const userId = req.user.id;
+    const { displayName, occupation, interests } = req.body;
 
-        const user=await User.findById(UserId);
-        if(!user){
-            return res.status(404).json({message:"User not found"});
-        }
-        if (displayName !== undefined) user.displayName = displayName;
-        if (occupation !== undefined) user.occupation = occupation;
-
-        if (interests !== undefined) {
-        user.interests = Array.isArray(interests)
-            ? interests
-            : interests.split(",").map((i) => i.trim());
-        }
-        if (profileImageUrl !== undefined) user.profileImageUrl = profileImageUrl;
-
-        await user.save();
-        return res.status(200).json({user});
-
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-    catch(error){
-        console.error(error);
-        return res.status(500).json({message:"Internal server error"});
-    }
-}
 
+    if (displayName !== undefined) user.displayName = displayName;
+    if (occupation !== undefined) user.occupation = occupation;
+
+    if (interests !== undefined) {
+      user.interests = Array.isArray(interests)
+        ? interests
+        : interests.split(",").map((i) => i.trim());
+    }
+
+    if (req.file) {
+      const upload = await cloudinary.uploader.upload(req.file.path, {
+        folder: "profile_images",
+      });
+
+      fs.unlinkSync(req.file.path);
+      user.profileImageUrl = upload.secure_url;
+    }
+
+    await user.save();
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      user,
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 export const deleteUserProfile = async (req, res) => {
     try {

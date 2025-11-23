@@ -1,8 +1,9 @@
+import 'dotenv/config';
 import express from 'express';
 import connectDB from './config/db.js';
 import router from './routes/authroutes.js';
 import router1 from './routes/userroutes.js';
-const app=express();
+const app = express();
 const Port = process.env.PORT || 5000;
 
 connectDB();
