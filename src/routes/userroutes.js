@@ -8,7 +8,7 @@ const router1 = express.Router();
 router1.get('/me', auth, getUserProfile);
 router1.put('/me', auth, upload.single('profileImage'), updateUserProfile);
 router1.delete('/me', auth, deleteUserProfile);
-router1.delete('/:id', auth,requireAdmin, deleteUserById);
+router1.delete('/admin/delete/:id', auth,requireAdmin, deleteUserById);
 
 export default router1;
 
