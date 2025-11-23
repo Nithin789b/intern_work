@@ -10,8 +10,8 @@ connectDB();
 
 app.use(express.json());            
 app.use(express.urlencoded({ extended: true }))
-app.use('/auth',router)
-app.use('/users', router1);
+app.use('/api/auth',router)
+app.use('/api/users', router1);
 
 app.listen(Port,()=>{
     console.log(`Server is running on port ${Port}`);
